@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>strange attractor</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  </head>
+  <body>
+    <div style="position:absolute; font-family: sans-serif; font-size:14px; padding: 5px; color: white">
+      <span style="background-color: #000">
+        &sigma;: <input id="sigmaSlider" type="range" min="0" max="32" value="10" />
+      </span> <br />
+      <span style="background-color: #000">
+        &rho;: <input id="rhoSlider" type="range" min="0" max="128" value="28" />
+      </span> <br />
+      <span style="background-color: #000">
+        &beta;: <input id="betaSlider" type="range" min="0" max="12" value="8" />
+      </span>
+      <div>
+        <sup>dx</sup>&frasl;<sub>dt</sub> = <span id="sigmaValue">10</span>(y-x)
+      </div>
+      <div>
+        <sup>dy</sup>&frasl;<sub>dt</sub> = x(<span id="rhoValue">28</span>-z)-y
+      </div>
+      <div>
+        <sup>dz</sup>&frasl;<sub>dt</sub> = xy - (<span id="betaValue">8</span>/3)(z)
+      </div>
+    </div>
+
+    <script src="js/Three.js"></script>
+    <script src="js/ShaderExtras.js"></script>
+    <script src="js/postprocessing/EffectComposer.js"></script>
+    <script src="js/postprocessing/MaskPass.js"></script>
+    <script src="js/postprocessing/RenderPass.js"></script>
+    <script src="js/postprocessing/ShaderPass.js"></script>
+    <script src="js/postprocessing/BloomPass.js"></script>
+    <script src="js/numeric-1.0.1.min.js"></script>
+
+    <script>
+      var camera, scene, renderer, material, sigma, rho, beta, curve, lineColor = Math.random() * 0xffffff, trailColor = 0xffffff;
+      init();
+      animate();
+      function init() {
+        container = document.createElement( 'div' );
+        document.body.appendChild( container );
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.z = 750;
+        scene.add( camera );
+
+        renderer = new THREE.WebGLRenderer( { clearColor: 0x000000, clearAlpha: 1, antialias: false } );
+        renderer.autoClear = false;
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        container.appendChild( renderer.domElement );
+        sigma = 10, rho = 28, beta = 8/3;
+        init_lorenz(sigma,rho,beta);
+
+        var renderModel = new THREE.RenderPass( scene, camera );
+        var effectBloom = new THREE.BloomPass( 1.3 );
+        var effectScreen = new THREE.ShaderPass( THREE.ShaderExtras[ "screen" ] );
+        var effectFXAA = new THREE.ShaderPass( THREE.ShaderExtras[ "fxaa" ] );
+
+        effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+
+        effectScreen.renderToScreen = true;
+
+        composer = new THREE.EffectComposer( renderer );
+
+        composer.addPass( renderModel );
+        composer.addPass( effectFXAA );
+        composer.addPass( effectBloom );
+        composer.addPass( effectScreen );
+      }
+
+      function init_lorenz(sigma,rho,beta) {
+        if (rho > 50) {
+          camera.position.z = rho * 30;
+        } else {
+          camera.position.z = 750;
+        }
+
+        var points = [];
+        points = lorenz(sigma,rho,beta);
+
+        var i, n_sub, container;
+        var geometry = new THREE.Geometry(), colors = [];
+
+        n_sub = 6;
+        var position, index;
+        var spline = new THREE.Spline( points );
+
+        for ( i = 0; i < points.length * n_sub; i ++ ) {
+          index = i / ( points.length * n_sub );
+          position = spline.getPoint( index );
+          geometry.vertices[ i ] = new THREE.Vertex( new THREE.Vector3( position.x, position.y, position.z ) );
+          colors[ i ] = new THREE.Color( 0xffffff );
+        }
+
+        geometry.colors = colors;
+
+        material = new THREE.LineBasicMaterial( { color: lineColor, opacity: 1, linewidth: 3 } );
+        material.vertexColors = true;
+        curve = new THREE.Line( geometry, material);
+        curve.scale.x = curve.scale.y = curve.scale.z = 5;
+        scene.add( curve );
+      }
+
+      // Attribution: http://www.numericjs.com/workshop.php?link=fdd38094da018f6071cb2d51d47c7fb3de869cb5dd0b4f3b677b480ce7ffbd31
+
+      function lorenz(sigma,rho,beta) {
+        var f = function(t,x) {
+          return [sigma*(x[1]-x[0]),
+                  x[0]*(rho-x[2])-x[1],
+                  x[0]*x[1]-(beta)*x[2]];
+        }
+        var retval = [];
+        var sol = numeric.dopri(0,20,[-1,3,4],f,1e-6,2000);
+
+        for (var iand = 0; iand < sol.y.length; iand++) {
+          var thevec = sol.y[iand];
+          retval.push(new THREE.Vector3(thevec[0], thevec[1], thevec[2]));
+        }
+        return retval;
+      }
+
+      function animate() {
+        requestAnimationFrame( animate );
+        render();
+      }
+
+      function render() {
+        camera.lookAt( scene.position );
+        /**
+        var time = Date.now() * 0.0005;
+
+        for ( var i = 0; i < scene.children.length; i ++ ) {
+          var object = scene.children[ i ];
+          if ( object instanceof THREE.Line ) {
+            object.rotation.y = time * ( i % 2 ? 1 : -1 );
+          }
+
+        }
+        **/
+        composer.render();
+      }
+    </script>
+
+    <script>
+      document.getElementById('sigmaSlider').onchange = function() {
+        document.getElementById('sigmaValue').innerHTML = document.getElementById('sigmaSlider').value;
+        sigma = document.getElementById('sigmaSlider').value;
+        scene.remove(curve);
+        init_lorenz(sigma,rho,beta);
+      }
+
+      document.getElementById('rhoSlider').onchange = function() {
+        document.getElementById('rhoValue').innerHTML = document.getElementById('rhoSlider').value;
+        rho = document.getElementById('rhoSlider').value;
+        scene.remove(curve);
+        init_lorenz(sigma,rho,beta);
+      }
+
+      document.getElementById('betaSlider').onchange = function() {
+        document.getElementById('betaValue').innerHTML = document.getElementById('betaSlider').value;
+        beta = document.getElementById('betaSlider').value;
+        beta = beta/3;
+        scene.remove(curve);
+        init_lorenz(sigma,rho,beta);
+      }
+    </script>
+  </body>
+</html>
