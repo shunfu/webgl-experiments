@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+
+<html>
+	
+<head>
+	<title>my first attempt</title>
+
+	<script type="text/javascript" src="gl-matrix.js"></script>
+	<script type="text/javascript" src="webgl-utils.js"></script>
+	
+	<script id="shader-fs" type="x-shader/x-fragment">
+	    precision mediump float;
+	
+	    void main(void) {
+	        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+	    }
+	</script>
+
+	<script id="shader-vs" type="x-shader/x-vertex">
+	    attribute vec3 aVertexPosition;
+	
+	    uniform mat4 uPMatrix;
+	
+	    void main(void) {
+	    	gl_PointSize = 4.0;
+	        gl_Position = uPMatrix * vec4(aVertexPosition, 1.0);
+	    }
+	</script>
+	
+	<script type="text/javascript">
+		var gl;
+		var shaderProgram;
+		var pMatrix = mat4.create();
+		
+		function initGL(canvas) {
+			gl = WebGLUtils.setupWebGL(canvas);
+			
+			if (!gl) {
+				return;
+			}
+			
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        	
+        	mat4.ortho(0, canvas.width, 0, canvas.height, -1, 1, pMatrix);
+		}
+		
+		function getShader(gl, id) {
+	        var shaderScript = document.getElementById(id);
+	        
+	        if (!shaderScript) {
+	            return null;
+	        }
+	
+	        var str = "";
+	        var k = shaderScript.firstChild;
+	        
+	        while (k) {
+	            if (k.nodeType == 3) {
+	                str += k.textContent;
+	            }
+	            
+	            k = k.nextSibling;
+	        }
+	
+	        var shader;
+	        
+	        if (shaderScript.type == "x-shader/x-fragment") {
+	            shader = gl.createShader(gl.FRAGMENT_SHADER);
+	        } else if (shaderScript.type == "x-shader/x-vertex") {
+	            shader = gl.createShader(gl.VERTEX_SHADER);
+	        } else {
+	            return null;
+	        }
+	
+	        gl.shaderSource(shader, str);
+	        gl.compileShader(shader);
+	
+	        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+	            alert(gl.getShaderInfoLog(shader));
+	            return null;
+	        }
+	
+	        return shader;
+	    }
+
+	    function initShaders() {
+	        var fragmentShader = getShader(gl, "shader-fs");
+	        var vertexShader = getShader(gl, "shader-vs");
+	
+	        shaderProgram = gl.createProgram();
+	        gl.attachShader(shaderProgram, vertexShader);
+	        gl.attachShader(shaderProgram, fragmentShader);
+	        gl.linkProgram(shaderProgram);
+	
+	        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+	            alert("Could not initialise shaders");
+	        }
+	
+	        gl.useProgram(shaderProgram);
+	
+	        shaderProgram.vertexPositionLoc = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	        gl.enableVertexAttribArray(shaderProgram.vertexPositionLoc);
+	
+	        shaderProgram.pMatrixLoc = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	    }
+	    
+	    var pointsBuffer;
+	    
+		function initBuffers() {
+			var vertices = [
+				100, 50, 0,
+				100, 130, 0,
+				150, 130, 0,
+				200, 200, 0,
+				350, 350, 0
+			];
+
+			var theta = 0;
+			for(var radius=60.0; radius>1.0; radius-=0.3) {
+			    //colors.push(radius/60.0, 0.3, 1-(radius/60.0));
+			    vertices.push(200+radius*Math.cos(theta),200+radius*Math.sin(theta),0);
+			    theta+=0.1;
+			}
+			
+			pointsBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, pointsBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+			
+			pointsBuffer.itemSize = 3;
+			pointsBuffer.numItems = vertices.length/3;
+		}
+		
+		function render() {
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			
+			gl.bindBuffer(gl.ARRAY_BUFFER, pointsBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexPositionLoc, pointsBuffer.itemSize, gl.FLOAT, false, 0, 0);
+			gl.uniformMatrix4fv(shaderProgram.pMatrixLoc, 0, pMatrix);
+			
+			gl.drawArrays(gl.POINTS, 0, pointsBuffer.numItems);
+		}
+		
+		function webGLStart() {
+	        var canvas = document.getElementById("webgl_canvas");
+	        initGL(canvas);
+	        initShaders();
+	        initBuffers();
+	
+	        render();
+	    }
+	</script>
+
+</head>
+
+<body onload="webGLStart()">
+	Three simple dots where pointsize = 4<br />
+	
+	<canvas id="webgl_canvas" width="640" height="480"></canvas>
+</body>
+
+</html>
