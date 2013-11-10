@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Three.js Lorenz Attractor</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			a {
+				color:#0078ff;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="three.min.js"></script>
+		<script src="stats.min.js"></script>
+
+		<script>
+
+			var container, stats;
+			var camera, scene, renderer, group, particle;
+			var mouseX = 0, mouseY = 0;
+
+			var materials = [];
+			var coords = [-1, 3, 4,
+			              1, 2, 3,
+			              0, 0, 0,
+			              1, 3, 4,
+			              8, 9, 19,
+			              14, 15, -2,
+			              2, 2, 2,
+			              2, 3, 5,
+			              -2, -5, -13,
+			              -17, 19, -11,
+			              100, 100, 100,
+			              -10, 10, -15,
+			              5, -5, -5,
+			              -54, 59, -103,
+			              1, 1, 1,
+			              -3, 14, 0,
+			              -1, -1, -1];
+			var particleNum = coords.length / 3;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			var PI2 = Math.PI * 2;
+			var program = function (context) {
+				context.beginPath();
+				context.arc(0, 0, 1, 0, PI2, true);
+				context.fill();
+			}
+
+			init();
+			animate();
+			calcLorenz();
+
+			function init() {
+				container = document.createElement('div');
+				document.body.appendChild(container);
+
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 750);
+				camera.position.z = 175;
+
+				scene = new THREE.Scene();
+
+				group = new THREE.Object3D();
+				scene.add(group);
+
+				for (var i = 0; i < coords.length; i += 3) {
+					materials.push(new THREE.SpriteCanvasMaterial( {
+						color: Math.random() * 0x808008 + 0x808080,
+						program: program
+					} ) );
+
+					addPoint(coords[i], coords[i+1], coords[i+2], materials.length - 1);
+				}
+
+				renderer = new THREE.CanvasRenderer();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild(stats.domElement);
+
+				document.addEventListener('mousemove', onDocumentMouseMove, false);
+				document.addEventListener('touchstart', onDocumentTouchStart, false);
+				document.addEventListener('touchmove', onDocumentTouchMove, false);
+
+				window.addEventListener('resize', onWindowResize, false);
+			}
+
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+
+			function onDocumentMouseMove(event) {
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+			}
+
+			function onDocumentTouchStart(event) {
+				if (event.touches.length === 1) {
+					event.preventDefault();
+					mouseX = event.touches[0].pageX - windowHalfX;
+					mouseY = event.touches[0].pageY - windowHalfY;
+				}
+			}
+
+			function onDocumentTouchMove(event) {
+				if (event.touches.length === 1) {
+					event.preventDefault();
+					mouseX = event.touches[0].pageX - windowHalfX;
+					mouseY = event.touches[0].pageY - windowHalfY;
+				}
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+
+				render();
+				stats.update();
+			}
+
+			function render() {
+				camera.position.x += (mouseX - camera.position.x) * 0.05;
+				camera.position.y += (-mouseY - camera.position.y) * 0.05;
+				camera.lookAt(scene.position);
+
+				group.rotation.x += 0.01;
+				group.rotation.y += 0.02;
+
+				renderer.render(scene, camera);
+			}
+
+			function addPoint(x, y, z, index) {
+				particle = new THREE.Sprite(materials[index]);
+				particle.position.x = x;
+				particle.position.y = y;
+				particle.position.z = z;
+				particle.scale.x = particle.scale.y = .5;
+				group.add(particle);
+			}
+
+			function calcLorenz() {
+				/**
+				 * dx/dt = sigma * (y - x)
+				 * dy/dt = x * (rho - z) - y
+				 * dz/dt = x * y - beta * z
+				**/
+
+				var sigma = 10;
+				var rho = 28;
+				var beta = 8/3;
+				var dt = .015;
+
+				for (var i = 0; i < coords.length; i += 3) {
+					var x0 = coords[i];
+					var y0 = coords[i+1];
+					var z0 = coords[i+2];
+
+					coords[i] = x0 + (sigma * (y0 - x0)) * dt;
+					coords[i+1] = y0 + (x0 * (rho - z0) - y0) * dt;
+					coords[i+2] = z0 + (x0 * y0 - beta * z0) * dt;
+
+					addPoint(coords[i], coords[i+1], coords[i+2], i/3);
+				}
+
+				particleNum += coords.length / 3;
+				console.log(particleNum);
+				requestAnimationFrame(calcLorenz);
+			}
+
+		</script>
+	</body>
+</html>
