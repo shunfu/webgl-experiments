@@ -182,7 +182,9 @@
 
 				particleNum += coords.length / 3;
 				console.log(particleNum);
-				requestAnimationFrame(calcLorenz);
+				if (particleNum < 3500) {
+					requestAnimationFrame(calcLorenz);
+				}
 			}
 
 		</script>
