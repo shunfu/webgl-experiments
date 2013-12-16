@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Lorenz Particle System</title>
+        <title>H&eacute;non Map</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
@@ -31,7 +31,7 @@
     </head>
     <body>
 
-        <div id="info">Lorenz Particle System</div>
+        <div id="info">H&eacute;non Map</div>
 
         <script src="three.min.js"></script>
         <script src="Detector.js"></script>
@@ -61,7 +61,7 @@
                 document.body.appendChild(container);
 
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
-                camera.position.z = 100;
+                camera.position.z = 2;
 
                 scene = new THREE.Scene();
                 scene.fog = new THREE.FogExp2(0x000000, 0.0007);
@@ -70,7 +70,7 @@
 
                 // randomly generate 20 initial starting vertices
                 for (var i = 0; i < 60; i ++) {
-                    coords[i] = Math.random() * 30 - 15;
+                    coords[i] = Math.random() * 1 - .5;
                 }
 
                 // randomly generate a color for each trajectory
@@ -84,7 +84,7 @@
                     var vertex = new THREE.Vector3();
                     vertex.x = coords[i*3];
                     vertex.y = coords[i*3+1];
-                    vertex.z = coords[i*3+2];
+                    vertex.z = 0;
 
                     geometry.vertices.push(vertex);
 
@@ -94,7 +94,7 @@
                 }
 
                 // collapse all unused vertices into a point way off screen
-                for (i = 20; i < 15000; i ++) {
+                for (i = 20; i < 2500; i ++) {
                     var vertex = new THREE.Vector3();
                     vertex.x = 1000;
                     vertex.y = 1000;
@@ -107,14 +107,14 @@
 
                 geometry.colors = colors;
 
-                material = new THREE.ParticleSystemMaterial({ size: 0.3, vertexColors: true, transparent: true });
+                material = new THREE.ParticleSystemMaterial({ size: 0.01, vertexColors: true, transparent: true });
                 material.color.setHSL(1.0, 0.2, 0.7);
 
                 particles = new THREE.ParticleSystem(geometry, material);
 
                 particles.rotation.x = Math.random() * 6;
                 particles.rotation.y = Math.random() * 6;
-                particles.rotation.z = Math.random() * 6;
+                // particles.rotation.z = Math.random() * 6;
 
                 scene.add(particles);
 
@@ -137,8 +137,8 @@
             function animate() {
                 requestAnimationFrame(animate);
 
-                if (particleNum < 15000) {
-                    calcLorenz();
+                if (particleNum < 2500) {
+                    calcHenon();
                 }
 
                 render();
@@ -149,8 +149,8 @@
             function render() {
                 var time = Date.now() * 0.00005;
 
-                camera.position.x += (mouseX - camera.position.x) * 0.05;
-                camera.position.y += (- mouseY - camera.position.y) * 0.05;
+                camera.position.x += (mouseX - camera.position.x) * 0.005;
+                camera.position.y += (- mouseY - camera.position.y) * 0.005;
 
                 camera.lookAt(scene.position);
 
@@ -178,26 +178,23 @@
                 renderer.clear();
             }
 
-            function calcLorenz() {
+            function calcHenon() {
                 /**
-                * dx/dt = sigma * (y - x)
-                * dy/dt = x * (rho - z) - y
-                * dz/dt = x * y - beta * z
+                * x_{n+1} = y_n + 1 - a * (x_n)^2
+                * y_{n+1} = b * x_n
+                * (This is a 2-D attractor, so there is no z coordinate, technically)
                 **/
 
-                var sigma = 10;
-                var rho = 28;
-                var beta = 8/3;
-                var dt = .015;
+                var a = 1.4;
+                var b = 0.3;
 
                 for (var i = 0; i < coords.length; i += 3) {
                     var x0 = coords[i];
                     var y0 = coords[i+1];
-                    var z0 = coords[i+2];
 
-                    coords[i] = x0 + (sigma * (y0 - x0)) * dt;
-                    coords[i+1] = y0 + (x0 * (rho - z0) - y0) * dt;
-                    coords[i+2] = z0 + (x0 * y0 - beta * z0) * dt;
+                    coords[i] = y0 + 1 - a * x0 * x0;
+                    coords[i+1] = b * x0;
+                    coords[i+2] = 0;
 
                     addPoint(coords[i], coords[i+1], coords[i+2]);
 

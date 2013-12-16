@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Lorenz Particle System</title>
+        <title>R&ouml;ssler Attractor</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
@@ -31,7 +31,7 @@
     </head>
     <body>
 
-        <div id="info">Lorenz Particle System</div>
+        <div id="info">R&ouml;ssler Attractor</div>
 
         <script src="three.min.js"></script>
         <script src="Detector.js"></script>
@@ -138,7 +138,7 @@
                 requestAnimationFrame(animate);
 
                 if (particleNum < 15000) {
-                    calcLorenz();
+                    calcRossler();
                 }
 
                 render();
@@ -178,16 +178,16 @@
                 renderer.clear();
             }
 
-            function calcLorenz() {
+            function calcRossler() {
                 /**
-                * dx/dt = sigma * (y - x)
-                * dy/dt = x * (rho - z) - y
-                * dz/dt = x * y - beta * z
+                * dx/dt = - y - z
+                * dy/dt = x + a * y
+                * dz/dt = b + z * (x - c)
                 **/
 
-                var sigma = 10;
-                var rho = 28;
-                var beta = 8/3;
+                var a = 0.1;
+                var b = 0.1;
+                var c = 14;
                 var dt = .015;
 
                 for (var i = 0; i < coords.length; i += 3) {
@@ -195,9 +195,9 @@
                     var y0 = coords[i+1];
                     var z0 = coords[i+2];
 
-                    coords[i] = x0 + (sigma * (y0 - x0)) * dt;
-                    coords[i+1] = y0 + (x0 * (rho - z0) - y0) * dt;
-                    coords[i+2] = z0 + (x0 * y0 - beta * z0) * dt;
+                    coords[i] = x0 + (- y0 - z0) * dt;
+                    coords[i+1] = y0 + (x0 + a * y0) * dt;
+                    coords[i+2] = z0 + (b + z0 * (x0 - c)) * dt;
 
                     addPoint(coords[i], coords[i+1], coords[i+2]);
 
