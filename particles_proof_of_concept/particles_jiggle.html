@@ -62,9 +62,8 @@
 				scene.fog = new THREE.FogExp2(0x000000, 0.0007);
 
 				geometry = new THREE.Geometry();
-				geometry.dynamic = true;
 
-				for (i = 0; i < 100; i ++) {
+				for (i = 0; i < 20000; i ++) {
 					var vertex = new THREE.Vector3();
 					vertex.x = Math.random() * 2000 - 1000;
 					vertex.y = Math.random() * 2000 - 1000;
@@ -73,7 +72,7 @@
 					geometry.vertices.push(vertex);
 				}
 
-				material = new THREE.ParticleSystemMaterial({ size: 75 });
+				material = new THREE.ParticleSystemMaterial({ size: 5 });
 
 				particles = new THREE.ParticleSystem(geometry, material);
 
@@ -134,12 +133,12 @@
 			}
 
 			function move() {
-				for (var i = 0; i < 100; i ++) {
+				for (var i = 0; i < 20000; i ++) {
 					geometry.vertices[i].x += Math.random() * 10 - 5;
 					geometry.vertices[i].y += Math.random() * 10 - 5;
 					geometry.vertices[i].z += Math.random() * 10 - 5;
 				}
-				particles.geometry.verticesNeedUpdate = true;
+				geometry.verticesNeedUpdate = true;
 				renderer.clear();
 			}
 
