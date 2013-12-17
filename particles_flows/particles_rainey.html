@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Lorenz Strange Attractor</title>
+        <title>Rainey Dynamical System</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
@@ -31,7 +31,7 @@
     </head>
     <body>
 
-        <div id="info">Lorenz Strange Attractor</div>
+        <div id="info">Rainey Dynamical System</div>
 
         <script src="three.min.js"></script>
         <script src="Detector.js"></script>
@@ -94,7 +94,7 @@
                 }
 
                 // collapse all unused vertices into a point way off screen
-                for (i = 20; i < 15000; i ++) {
+                for (i = 20; i < 2500; i ++) {
                     var vertex = new THREE.Vector3();
                     vertex.x = 1000;
                     vertex.y = 1000;
@@ -137,8 +137,8 @@
             function animate() {
                 requestAnimationFrame(animate);
 
-                if (particleNum < 15000) {
-                    calcLorenz();
+                if (particleNum < 2500) {
+                    calcRainey();
                 }
 
                 render();
@@ -178,16 +178,15 @@
                 renderer.clear();
             }
 
-            function calcLorenz() {
+            function calcRainey() {
                 /**
-                * dx/dt = sigma * (y - x)
-                * dy/dt = x * (rho - z) - y
-                * dz/dt = x * y - beta * z
+                * Chris Rainey is a former MATH 198 student who made up his own set of ODEs for a dynamical system
+                *
+                * dx/dt = y * z
+                * dy/dt = x * z
+                * dz/dt = x * y
                 **/
 
-                var sigma = 10;
-                var rho = 28;
-                var beta = 8/3;
                 var dt = .015;
 
                 for (var i = 0; i < coords.length; i += 3) {
@@ -195,9 +194,9 @@
                     var y0 = coords[i+1];
                     var z0 = coords[i+2];
 
-                    coords[i] = x0 + (sigma * (y0 - x0)) * dt;
-                    coords[i+1] = y0 + (x0 * (rho - z0) - y0) * dt;
-                    coords[i+2] = z0 + (x0 * y0 - beta * z0) * dt;
+                    coords[i] = x0 + (y0 * z0) * dt;
+                    coords[i+1] = y0 + (x0 * z0) * dt;
+                    coords[i+2] = z0 + (x0 * y0) * dt;
 
                     addPoint(coords[i], coords[i+1], coords[i+2]);
 
