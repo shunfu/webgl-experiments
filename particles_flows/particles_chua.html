@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>R&ouml;ssler Attractor</title>
+        <title>Chua's Attractor (Double Scroll Attractor)</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
@@ -31,7 +31,7 @@
     </head>
     <body>
 
-        <div id="info">R&ouml;ssler Attractor</div>
+        <div id="info">Chua's Attractor (Double Scroll Attractor)</div>
 
         <script src="three.min.js"></script>
         <script src="Detector.js"></script>
@@ -60,8 +60,8 @@
                 container = document.createElement('div');
                 document.body.appendChild(container);
 
-                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
-                camera.position.z = 100;
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 250);
+                camera.position.z = 5;
 
                 scene = new THREE.Scene();
                 scene.fog = new THREE.FogExp2(0x000000, 0.0007);
@@ -70,7 +70,7 @@
 
                 // randomly generate 20 initial starting vertices
                 for (var i = 0; i < 60; i ++) {
-                    coords[i] = Math.random() * 30 - 15;
+                    coords[i] = Math.random() * 1 - .5;
                 }
 
                 // randomly generate a color for each trajectory
@@ -107,7 +107,7 @@
 
                 geometry.colors = colors;
 
-                material = new THREE.ParticleSystemMaterial({ size: 0.3, vertexColors: true, transparent: true });
+                material = new THREE.ParticleSystemMaterial({ size: 0.01, vertexColors: true, transparent: true });
                 material.color.setHSL(1.0, 0.2, 0.7);
 
                 particles = new THREE.ParticleSystem(geometry, material);
@@ -138,7 +138,7 @@
                 requestAnimationFrame(animate);
 
                 if (particleNum < 15000) {
-                    calcRossler();
+                    calcChua();
                 }
 
                 render();
@@ -149,8 +149,8 @@
             function render() {
                 var time = Date.now() * 0.00005;
 
-                camera.position.x += (mouseX - camera.position.x) * 0.05;
-                camera.position.y += (- mouseY - camera.position.y) * 0.05;
+                camera.position.x += (mouseX - camera.position.x) * 0.0005;
+                camera.position.y += (- mouseY - camera.position.y) * 0.0005;
 
                 camera.lookAt(scene.position);
 
@@ -178,26 +178,32 @@
                 renderer.clear();
             }
 
-            function calcRossler() {
+            function calcChua() {
                 /**
-                * dx/dt = - y - z
-                * dy/dt = x + a * y
-                * dz/dt = b + z * (x - c)
+                * dx/dt = alpha * (y - x - f(x))
+                * dy/dt = x - y + z
+                * dz/dt = - beta * y
+                * f(x) = m1 * x + (m0-m1)/2 * |x+1| - |x-1|)
+                *
+                * The equation for f(x) was taken from matlab code provided on http://www.chuacircuits.com/matlabsim.php
                 **/
 
-                var a = 0.1;
-                var b = 0.1;
-                var c = 14;
+                var alpha = 15.6;
+                var beta = 28;
                 var dt = .015;
+
+                var m0 = -1.143;
+                var m1 = -0.714;
+                function f(x) { return m1 * x + 0.5 * (m0 - m1) * (Math.abs(x + 1) - Math.abs(x - 1)); }
 
                 for (var i = 0; i < coords.length; i += 3) {
                     var x0 = coords[i];
                     var y0 = coords[i+1];
                     var z0 = coords[i+2];
 
-                    coords[i] = x0 + (- y0 - z0) * dt;
-                    coords[i+1] = y0 + (x0 + a * y0) * dt;
-                    coords[i+2] = z0 + (b + z0 * (x0 - c)) * dt;
+                    coords[i] = x0 + (alpha * (y0 - x0 - f(x0))) * dt;
+                    coords[i+1] = y0 + (x0 - y0 + z0) * dt;
+                    coords[i+2] = z0 + (- beta * y0) * dt;
 
                     addPoint(coords[i], coords[i+1], coords[i+2]);
 

@@ -60,7 +60,7 @@
                 container = document.createElement('div');
                 document.body.appendChild(container);
 
-                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 250);
                 camera.position.z = 2;
 
                 scene = new THREE.Scene();
@@ -112,10 +112,6 @@
 
                 particles = new THREE.ParticleSystem(geometry, material);
 
-                particles.rotation.x = Math.random() * 6;
-                particles.rotation.y = Math.random() * 6;
-                // particles.rotation.z = Math.random() * 6;
-
                 scene.add(particles);
 
                 renderer = new THREE.WebGLRenderer();
@@ -149,13 +145,13 @@
             function render() {
                 var time = Date.now() * 0.00005;
 
-                camera.position.x += (mouseX - camera.position.x) * 0.005;
-                camera.position.y += (- mouseY - camera.position.y) * 0.005;
+                camera.position.x += (mouseX - camera.position.x) * 0.0005;
+                camera.position.y += (- mouseY - camera.position.y) * 0.0005;
 
                 camera.lookAt(scene.position);
 
                 for (i = 0; i < scene.children.length; i ++) {
-                    var object = scene.children[ i ];
+                    var object = scene.children[i];
 
                     if (object instanceof THREE.ParticleSystem) {
                         object.rotation.y = time * (i < 4 ? i + 1 : - (i + 1));

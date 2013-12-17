@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>R&ouml;ssler Attractor</title>
+        <title>Li&eacute;nard-Van der Pol Oscillator</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
@@ -31,7 +31,7 @@
     </head>
     <body>
 
-        <div id="info">R&ouml;ssler Attractor</div>
+        <div id="info">Li&eacute;nard-Van der Pol Oscillator</div>
 
         <script src="three.min.js"></script>
         <script src="Detector.js"></script>
@@ -60,8 +60,8 @@
                 container = document.createElement('div');
                 document.body.appendChild(container);
 
-                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
-                camera.position.z = 100;
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 500);
+                camera.position.z = 5;
 
                 scene = new THREE.Scene();
                 scene.fog = new THREE.FogExp2(0x000000, 0.0007);
@@ -70,7 +70,7 @@
 
                 // randomly generate 20 initial starting vertices
                 for (var i = 0; i < 60; i ++) {
-                    coords[i] = Math.random() * 30 - 15;
+                    coords[i] = Math.random() * 6 - 3;
                 }
 
                 // randomly generate a color for each trajectory
@@ -84,7 +84,7 @@
                     var vertex = new THREE.Vector3();
                     vertex.x = coords[i*3];
                     vertex.y = coords[i*3+1];
-                    vertex.z = coords[i*3+2];
+                    vertex.z = 0;
 
                     geometry.vertices.push(vertex);
 
@@ -107,14 +107,12 @@
 
                 geometry.colors = colors;
 
-                material = new THREE.ParticleSystemMaterial({ size: 0.3, vertexColors: true, transparent: true });
+                material = new THREE.ParticleSystemMaterial({ size: 0.01, vertexColors: true, transparent: true });
                 material.color.setHSL(1.0, 0.2, 0.7);
 
                 particles = new THREE.ParticleSystem(geometry, material);
 
                 particles.rotation.x = Math.random() * 6;
-                particles.rotation.y = Math.random() * 6;
-                particles.rotation.z = Math.random() * 6;
 
                 scene.add(particles);
 
@@ -138,7 +136,7 @@
                 requestAnimationFrame(animate);
 
                 if (particleNum < 15000) {
-                    calcRossler();
+                    calcVanderpol();
                 }
 
                 render();
@@ -149,8 +147,8 @@
             function render() {
                 var time = Date.now() * 0.00005;
 
-                camera.position.x += (mouseX - camera.position.x) * 0.05;
-                camera.position.y += (- mouseY - camera.position.y) * 0.05;
+                camera.position.x += (mouseX - camera.position.x) * 0.0005;
+                camera.position.y += (- mouseY - camera.position.y) * 0.0005;
 
                 camera.lookAt(scene.position);
 
@@ -178,28 +176,26 @@
                 renderer.clear();
             }
 
-            function calcRossler() {
+            function calcVanderpol() {
                 /**
-                * dx/dt = - y - z
-                * dy/dt = x + a * y
-                * dz/dt = b + z * (x - c)
+                * dx/dt = y
+                * dy/dt = mu * (1 - x^2) * y - x
+                * 
+                * This is a 2-D oscillator, but it still looks nice if z = mu
                 **/
 
-                var a = 0.1;
-                var b = 0.1;
-                var c = 14;
                 var dt = .015;
 
                 for (var i = 0; i < coords.length; i += 3) {
                     var x0 = coords[i];
                     var y0 = coords[i+1];
-                    var z0 = coords[i+2];
+                    var mu = coords[i+2];
 
-                    coords[i] = x0 + (- y0 - z0) * dt;
-                    coords[i+1] = y0 + (x0 + a * y0) * dt;
-                    coords[i+2] = z0 + (b + z0 * (x0 - c)) * dt;
+                    coords[i] = x0 + y0 * dt;
+                    coords[i+1] = y0 + (mu * (1 - x0 * x0) * y0 - x0) * dt;
+                    coords[i+2] = mu;
 
-                    addPoint(coords[i], coords[i+1], coords[i+2]);
+                    addPoint(coords[i], coords[i+1], 0);
 
                     particleNum ++;
                 }
