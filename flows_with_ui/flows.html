@@ -30,11 +30,11 @@
 
             .panel {
                 position: fixed;
-                padding: 30px;
+                padding: 20px;
                 color: #fff;
                 cursor: default;
                 width: 400px;
-                right: 30px;
+                right: 25px;
             }
         </style>
     </head>
@@ -50,28 +50,115 @@
             <header><h2 class="header_title">Select Attractor</h2></header>
             <div id="accordion">
                 <h3>Lorenz Strange Attractor</h3>
-                <div>
-                    Equations go here and add a button
+                <div> dx/dt = &sigma;(y - x) <br />
+                      dy/dt = x(&rho; - z) - y <br />
+                      dz/dt = xy - &beta;z <br />
+                      <br />
+                      &sigma; = 10 <br />
+                      &rho; = 28 <br />
+                      &beta; = 8/3 <br />
+                      <br />
                     <button id="lorenzButton">Show me!</button>
                 </div>
                 <h3>R&ouml;ssler Attractor</h3>
-                <div>Phasellus mattis tincidunt nibh.</div>
+                <div> dx/dt = - y - z <br />
+                      dy/dt = x + ay <br />
+                      dz/dt = b + z(x - c) <br />
+                      <br />
+                      a = 0.1 <br />
+                      b = 0.1 <br />
+                      c = 14 <br />
+                      <br />
+                    <button id="rosslerButton">Show me!</button>
+                </div>
                 <h3>H&eacute;non Map</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div>  x<sub>n+1</sub> = y<sub>n</sub> + 1 - ax<sub>n</sub><sup>2</sup> <br />
+                       y<sub>n+1</sub> = bx<sub>n</sub> <br />
+                       (This is a 2-D attractor, so there is no z coordinate, technically) <br />
+                       <br />
+                       a = 1.4 <br />
+                       b = 0.3 <br />
+                       <br />
+                    <button id="henonButton">Show me!</button>
+                </div>
                 <h3>Chua's Attractor (Double Scroll Attractor)</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div> dx/dt = &alpha;(y - x - f(x)) <br />
+                      dy/dt = x - y + z <br />
+                      dz/dt = - &beta;y <br />
+                      f(x) = m<sub>1</sub>x + (m<sub>0</sub>-m<sub>1</sub>)/2 * |x+1| - |x-1|) <br />
+                      <br />
+                      The equation for f(x) was obtained from matlab code provided <a href="http://www.chuacircuits.com/matlabsim.php">here</a> <br />
+                      <br />
+                      &alpha; = 15.6 <br />
+                      &beta; = 28 <br />
+                      m<sub>0</sub> = -1.143 <br />
+                      m<sub>1</sub> = -0.714 <br />
+                      <br />
+                      <button id="chuaButton">Show me!</button>
+                </div>
                 <h3>Li&eacute;nard-Van der Pol Oscillator</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div> dx/dt = y <br />
+                      dy/dt = &mu;(1 - x<sup>2</sup>)y - x <br />
+                      <br />
+                      This is a 2-D oscillator. I showed flow for various random values of &mu;. It also looks nice if you set z = &mu; <br />
+                      <br />
+                    <button id="vanButton">Show me!</button>
+                </div>
                 <h3>Rabinovich-Fabrikant System</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div> dx/dt = y(z - 1 + x<sup>2</sup>) + &gamma;x <br />
+                      dy/dt = x(3z + 1 - x<sup>2</sup>) + &gamma;y <br />
+                      dz/dt = - 2z(&alpha; + xy) <br />
+                      <br />
+                      &alpha; = 0.98 <br />
+                      &gamma; = 0.1 <br />
+                      <br />
+                    <button id="rabfabButton">Show me!</button>
+                </div>
                 <h3>Tinkerbell Map</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div> x<sub>n+1</sub> = x<sub>n</sub><sup>2</sup> - y<sub>n</sub><sup>2</sup> + ax<sub>n</sub> + by<sub>n</sub> <br />
+                      y<sub>n+1</sub> = 2x<sub>n</sub>y<sub>n</sub> + cx<sub>n</sub> + dy<sub>n</sub> <br />
+                      (This is a 2-D dynamical system, so there is no z coordinate, technically) <br />
+                      <br />
+                      a = 0.9 <br />
+                      b = -0.6013 <br />
+                      c = 2 <br />
+                      d = 0.5 <br />
+                      <br />
+                    <button id="tinkerbellButton">Show me!</button>
+                </div>
                 <h3>Ikeda Map</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div> x<sub>n+1</sub> = 1 + u(x<sub>n</sub>cos(t<sub>n</sub>) - y<sub>n</sub>sin(t<sub>n</sub>)) <br />
+                      y<sub>n+1</sub> = u(x<sub>n</sub>sin(t<sub>n</sub>) + y<sub>n</sub>cos(t<sub>n</sub>)) <br />
+                      t<sub>n</sub> = 0.4 - 6/(1 + x<sub>n</sub><sup>2</sup> + y<sub>n</sub><sup>2</sup>) <br />
+                      <br />
+                      (This is a 2-D dynamical system, so there is no z coordinate, technically) <br />
+                      <br />
+                      u = 0.85 <br />
+                      <br />
+                    <button id="ikedaButton">Show me!</button>
+                </div>
                 <h3>Rainey Dynamical System</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div> dx/dt = yz <br />
+                      dy/dt = xz <br />
+                      dz/dt = xy <br />
+                      <br />
+                      Chris Rainey is a former MATH 198 student who made up his own set of ODEs for a dynamical system <br />
+                      <br />
+                    <button id="raineyButton">Show me!</button>
+                </div>
                 <h3>Fu Attractor</h3>
-                <div>Nam dui erat, auctor a, dignissim quis.</div>
+                <div> dx/dt = &alpha;(y + x)/z <br />
+                      dy/dt = x(&beta; - x - y - z) <br />
+                      dz/dt = xyz/&gamma; <br />
+                      <br />
+                      &alpha; = 18 <br />
+                      &beta; = 42 <br />
+                      &gamma; = 15 <br />
+                      <br />
+                      My own creation (a reward for hard work) <br />
+                      <br />
+                    <button id="fuButton">Show me!</button>
+                </div>
             </div>
         </div>
 
