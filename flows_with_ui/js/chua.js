@@ -1,18 +1,20 @@
-function lorenzInit() {
+function chuaInit() {
     coords = [];
     trajColors = [];
     colors = [];
     particleNum = 0;
 
-    camera.near = 1;
-    camera.far = 3000;
-    camera.position.z = 100;
+    camera.near = 0.05;
+    camera.far = 250;
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 5;
 
     geometry = new THREE.Geometry();
 
     // randomly generate 20 initial starting vertices
     for (var i = 0; i < 60; i ++) {
-        coords[i] = Math.random() * 30 - 15;
+        coords[i] = Math.random() * 1 - .5;
     }
 
     // randomly generate a color for each trajectory
@@ -49,7 +51,7 @@ function lorenzInit() {
 
     geometry.colors = colors;
 
-    material = new THREE.ParticleSystemMaterial({ size: 0.3, vertexColors: true, transparent: true });
+    material = new THREE.ParticleSystemMaterial({ size: 0.01, vertexColors: true, transparent: true });
     material.color.setHSL(1.0, 0.2, 0.7);
 
     particles = new THREE.ParticleSystem(geometry, material);
@@ -61,17 +63,15 @@ function lorenzInit() {
     scene.add(particles);
 }
 
-function lorenzAnimate() {
-    if (execute) {
-        console.log(execute);
-
-        requestAnimationFrame(lorenzAnimate);
+function chuaAnimate() {
+    if (execute && which == 4) {
+        requestAnimationFrame(chuaAnimate);
 
         if (particleNum < 10000) {
-            calcLorenz();
+            calcChua();
         }
 
-        lorenzRender();
+        chuaRender();
 
         stats.update();
     } else {
@@ -79,11 +79,11 @@ function lorenzAnimate() {
     }
 }
 
-function lorenzRender() {
+function chuaRender() {
     var time = Date.now() * 0.00005;
 
-    camera.position.x += (mouseX - camera.position.x) * 0.05;
-    camera.position.y += (- mouseY - camera.position.y) * 0.05;
+    camera.position.x += (mouseX - camera.position.x) * 0.0005;
+    camera.position.y += (- mouseY - camera.position.y) * 0.0005;
 
     camera.lookAt(scene.position);
 
@@ -103,36 +103,34 @@ function lorenzRender() {
     renderer.render(scene, camera);
 }
 
-function lorenzAddPoint(x, y, z) {
-    geometry.vertices[particleNum].x = x;
-    geometry.vertices[particleNum].y = y;
-    geometry.vertices[particleNum].z = z;
-    geometry.verticesNeedUpdate = true;
-    renderer.clear();
-}
-
-function calcLorenz() {
+function calcChua() {
     /**
-    * dx/dt = sigma * (y - x)
-    * dy/dt = x * (rho - z) - y
-    * dz/dt = x * y - beta * z
+    * dx/dt = alpha * (y - x - f(x))
+    * dy/dt = x - y + z
+    * dz/dt = - beta * y
+    * f(x) = m1 * x + (m0-m1)/2 * |x+1| - |x-1|)
+    *
+    * The equation for f(x) was taken from matlab code provided on http://www.chuacircuits.com/matlabsim.php
     **/
 
-    var sigma = 10;
-    var rho = 28;
-    var beta = 8/3;
+    var alpha = 15.6;
+    var beta = 28;
     var dt = .015;
+
+    var m0 = -1.143;
+    var m1 = -0.714;
+    function f(x) { return m1 * x + 0.5 * (m0 - m1) * (Math.abs(x + 1) - Math.abs(x - 1)); }
 
     for (var i = 0; i < coords.length; i += 3) {
         var x0 = coords[i];
         var y0 = coords[i+1];
         var z0 = coords[i+2];
 
-        coords[i] = x0 + (sigma * (y0 - x0)) * dt;
-        coords[i+1] = y0 + (x0 * (rho - z0) - y0) * dt;
-        coords[i+2] = z0 + (x0 * y0 - beta * z0) * dt;
+        coords[i] = x0 + (alpha * (y0 - x0 - f(x0))) * dt;
+        coords[i+1] = y0 + (x0 - y0 + z0) * dt;
+        coords[i+2] = z0 + (- beta * y0) * dt;
 
-        lorenzAddPoint(coords[i], coords[i+1], coords[i+2]);
+        addPoint(coords[i], coords[i+1], coords[i+2]);
 
         particleNum ++;
     }

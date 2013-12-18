@@ -30,11 +30,10 @@
 
             .panel {
                 position: fixed;
-                padding: 20px;
                 color: #fff;
                 cursor: default;
                 width: 400px;
-                right: 25px;
+                right: 30px;
             }
         </style>
     </head>
@@ -166,34 +165,18 @@
         <script src="js/Detector.js"></script>
         <script src="js/stats.min.js"></script>
 
-        <script src="lorenz.js"></script>
+        <script src="js/lorenz.js"></script>
+        <script src="js/rossler.js"></script>
+        <script src="js/henon.js"></script>
+        <script src="js/chua.js"></script>
+        <script src="js/vanderpol.js"></script>
+        <script src="js/rabfab.js"></script>
+        <script src="js/tinkerbell.js"></script>
+        <script src="js/ikeda.js"></script>
+        <script src="js/rainey.js"></script>
+        <script src="js/fu.js"></script>
 
-        <script>
-            $(function() {
-                
-                $("#accordion").accordion({
-                    collapsible: true,
-                    heightStyle: "content"
-                });
-
-                $("#panel").draggable();
-
-                $("button").button();
-
-                $("#lorenzButton").click(function() {
-                    execute = false;
-                    // console.log(geometry);
-                    geometry.__webglVertexBuffer = null;
-                    geometry.__webglColorBuffer = null;
-                    renderer.clear();
-                    removeAll();
-                    execute = true;
-                    lorenzInit();
-                    lorenzAnimate();
-                });
-
-            });
-        </script>
+        <script src="js/controller.js"></script>
 
         <script>
 
@@ -206,6 +189,7 @@
             var colors = [];
             var particleNum = 0;
             var execute = true;
+            var which = 1;
 
             var mouseX = 0, mouseY = 0;
 
@@ -237,6 +221,14 @@
 
             lorenzInit();
             lorenzAnimate();
+
+            function addPoint(x, y, z) {
+                geometry.vertices[particleNum].x = x;
+                geometry.vertices[particleNum].y = y;
+                geometry.vertices[particleNum].z = z;
+                geometry.verticesNeedUpdate = true;
+                renderer.clear();
+            }
 
             function removeAll() {
                 for (i = scene.children.length - 1; i >= 0; i --) {
