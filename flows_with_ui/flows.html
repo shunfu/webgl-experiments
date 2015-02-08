@@ -17,7 +17,11 @@
             }
 
             a {
-                color:#0078ff;
+                color: #0078ff;
+            }
+
+            #container {
+                cursor: default;
             }
 
             #info {
@@ -26,14 +30,6 @@
                 top: 0px; width: 100%;
                 padding: 5px;
             }
-
-            .panel {
-                position: fixed;
-                color: #fff;
-                cursor: default;
-                width: 400px;
-                right: 30px;
-            }
         </style>
     </head>
     <body>
@@ -41,117 +37,16 @@
         <div id="container"></div>
         <div id="info">Flows with Strange Attractors</div>
 
-        <script src="js/three.min.js"></script>
-        <script src="js/Detector.js"></script>
-        <script src="js/stats.min.js"></script>
-        <script src="js/dat.gui.min.js"></script>
-        <link href="css/dat-gui-light-theme.css" rel="stylesheet">
+        <script src="lib/three.min.js"></script>
+        <script src="lib/Detector.js"></script>
+        <script src="lib/stats.min.js"></script>
+        <script src="lib/dat.gui.min.js"></script>
+        <link href="lib/dat-gui-light-theme.css" rel="stylesheet">
 
-        <script src="js/lorenz.js"></script>
-        <script src="js/rossler.js"></script>
-        <script src="js/henon.js"></script>
-        <script src="js/chua.js"></script>
-        <script src="js/vanderpol.js"></script>
-        <script src="js/rabfab.js"></script>
-        <script src="js/tinkerbell.js"></script>
-        <script src="js/ikeda.js"></script>
-        <script src="js/rainey.js"></script>
-        <script src="js/fu.js"></script>
-
-        <script src="js/controller.js"></script>
-
-        <script>
-
-            if (!Detector.webgl) Detector.addGetWebGLMessage();
-
-            var container, stats;
-            var camera, scene, renderer, particles, geometry, material, parameters, i, h, color;
-            var coords = [];
-            var trajColors = [];
-            var colors = [];
-            var particleNum = 0;
-            var execute = true;
-            var which = 1;
-
-            var mouseX = 0, mouseY = 0;
-
-            var windowHalfX = window.innerWidth / 2;
-            var windowHalfY = window.innerHeight / 2;
-
-            container = document.getElementById('container');
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
-
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x000000, 0.0007);
-
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            container.appendChild(renderer.domElement);
-
-            stats = new Stats();
-            stats.domElement.style.position = 'absolute';
-            stats.domElement.style.top = '0px';
-            container.appendChild(stats.domElement);
-
-            document.addEventListener('mousemove', onDocumentMouseMove, false);
-            document.addEventListener('touchstart', onDocumentTouchStart, false);
-            document.addEventListener('touchmove', onDocumentTouchMove, false);
-
-            window.addEventListener('resize', onWindowResize, false);
-
-            lorenzInit();
-            lorenzAnimate();
-
-            function addPoint(x, y, z) {
-                geometry.vertices[particleNum].x = x;
-                geometry.vertices[particleNum].y = y;
-                geometry.vertices[particleNum].z = z;
-                geometry.verticesNeedUpdate = true;
-                renderer.clear();
-            }
-
-            function removeAll() {
-                for (i = scene.children.length - 1; i >= 0; i --) {
-                    var object = scene.children[i];
-
-                    if (object instanceof THREE.ParticleSystem) {
-                        scene.remove(object);
-                    }
-                }
-            }
-
-            function onWindowResize() {
-                windowHalfX = window.innerWidth / 2;
-                windowHalfY = window.innerHeight / 2;
-
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-
-            function onDocumentMouseMove(event) {
-                mouseX = event.clientX - windowHalfX;
-                mouseY = event.clientY - windowHalfY;
-            }
-
-            function onDocumentTouchStart(event) {
-                if (event.touches.length === 1) {
-                    event.preventDefault();
-                    mouseX = event.touches[0].pageX - windowHalfX;
-                    mouseY = event.touches[0].pageY - windowHalfY;
-                }
-            }
-
-            function onDocumentTouchMove(event) {
-                if (event.touches.length === 1) {
-                    event.preventDefault();
-                    mouseX = event.touches[0].pageX - windowHalfX;
-                    mouseY = event.touches[0].pageY - windowHalfY;
-                }
-            }
-
-        </script>
+        <script src="js/utils.js"></script>
+        <script src="js/gui.js"></script>
+        <script src="js/attractors.js"></script>
+        <script src="js/animations.js"></script>
+        <script src="js/init.js"></script>
     </body>
 </html>
